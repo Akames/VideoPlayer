@@ -1,13 +1,19 @@
 package com.akame.videoplayer
 
-import android.content.Context
+import com.akame.videoplayer.core.VideoPlayListener
 
 interface IVideoPlayerControl {
-    fun init(context: Context, mediaType: MediaType)
-
     fun play()
 
     fun pause()
 
+    fun isPlaying(): Boolean
+
+    fun seekTo(positionMs: Long)
+
     fun release()
+
+    fun setPlayListener(playerListener: VideoPlayListener)
+
+    fun getDuration(): Long
 }
