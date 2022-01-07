@@ -1,7 +1,9 @@
 package com.akame.videoplayer
 
+import android.app.Dialog
 import android.content.Context
 import android.view.SurfaceView
+import androidx.appcompat.app.AlertDialog
 import com.akame.videoplayer.core.VideoPlayListener
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -73,6 +75,8 @@ class ExoPlayer(
 
     override fun getDuration() = player.duration
 
+    override fun getCurrentDuration(): Long = player.currentPosition
+
     private fun createMediaItem(mediaType: MediaType) = when (mediaType) {
         is MediaType.StringType -> MediaItem.fromUri(mediaType.mediaPath)
         is MediaType.UriType -> MediaItem.fromUri(mediaType.mediaPath)
@@ -85,7 +89,7 @@ class ExoPlayer(
                     if (isPlaying()) {
                         playerListener?.onPlayingCurrentDuration(player.currentPosition)
                     }
-                    if (player.playbackState == Player.STATE_ENDED){
+                    if (player.playbackState == Player.STATE_ENDED) {
                         playerListener?.onPlayingCurrentDuration(player.duration)
                     }
                 }

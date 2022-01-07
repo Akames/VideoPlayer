@@ -1,11 +1,11 @@
 package com.akame.videoplayer
 
 import android.view.View
-import com.akame.videoplayer.databinding.LayoutVideoControlBinding
+import com.akame.videoplayer.databinding.LayoutVideoPlayControlBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
-fun LayoutVideoControlBinding.changeVisibility(goneRunnable: Runnable) {
+fun LayoutVideoPlayControlBinding.changeVisibility(goneRunnable: Runnable) {
     if (this.root.visibility == View.VISIBLE) {
         this.root.visibility = View.GONE
     } else {
@@ -14,7 +14,7 @@ fun LayoutVideoControlBinding.changeVisibility(goneRunnable: Runnable) {
     }
 }
 
-fun LayoutVideoControlBinding.showDelayGone(goneRunnable: Runnable, delayTime: Long = 3000) {
+fun LayoutVideoPlayControlBinding.showDelayGone(goneRunnable: Runnable, delayTime: Long = 3000) {
     this.root.removeCallbacks(goneRunnable)
     this.root.postDelayed(goneRunnable, delayTime)
 }

@@ -11,6 +11,6 @@ class VideoPlayActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityVideoPlayBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.videoPlay.setup(lifecycleScope, MediaType.StringType("https://mirror.aarnet.edu.au/pub/TED-talks/911Mothers_2010W-480p.mp4"))
+        binding.videoPlay.setup(lifecycleScope, MediaType.StringType("https://mirror.aarnet.edu.au/pub/TED-talks/911Mothers_2010W-480p.mp4"),"你的选择没有错")
     }
 }

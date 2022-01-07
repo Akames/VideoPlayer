@@ -28,7 +28,7 @@ open class VideoPlayCore(context: Context, attributeSet: AttributeSet) : FrameLa
         addView(surfaceView)
     }
 
-    fun setup(externalScope: CoroutineScope, mediaType: MediaType) {
+   open fun setup(externalScope: CoroutineScope, mediaType: MediaType) {
         videoPlay = ExoPlayer(context, externalScope, mediaType, surfaceView)
     }
 }

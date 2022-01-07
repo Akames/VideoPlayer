@@ -4,68 +4,76 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:visibility="gone"
-    tools:visibility="visible">
+    android:background="@drawable/shape_control_bg">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/shape_control_bg"
-        app:layout_constraintBottom_toBottomOf="parent" />
+    <ImageView
+        android:id="@+id/iv_back"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
+        android:padding="12dp"
+        android:src="@mipmap/ic_back"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="@string/app_name"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@id/iv_back"
+        app:layout_constraintLeft_toRightOf="@id/iv_back"
+        app:layout_constraintTop_toTopOf="@id/iv_back" />
 
     <ImageView
         android:id="@+id/iv_play_status"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:padding="10dp"
+        android:padding="12dp"
         android:src="@mipmap/ic_play"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent" />
 
     <TextView
         android:id="@+id/tv_start_time"
-        android:layout_width="56dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
         android:gravity="center"
-        android:text="00:00:00"
+        android:minWidth="40dp"
+        android:text="00:00"
         android:textColor="@color/white"
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@id/iv_play_status"
-        app:layout_constraintLeft_toRightOf="@id/iv_play_status"
+        app:layout_constraintBottom_toBottomOf="@id/seek_bar"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/seek_bar"
-        app:layout_constraintTop_toTopOf="@id/iv_play_status" />
+        app:layout_constraintTop_toTopOf="@id/seek_bar" />
 
     <com.akame.videoplayer.VideoPlayerSeekBar
         android:id="@+id/seek_bar"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@id/iv_play_status"
+        android:layout_height="38dp"
+        android:maxHeight="2dp"
+        android:progressDrawable="@drawable/layerlist_seek_bar_process"
+        app:layout_constraintBottom_toTopOf="@id/iv_play_status"
         app:layout_constraintLeft_toRightOf="@id/tv_start_time"
-        app:layout_constraintRight_toLeftOf="@id/tv_end_time"
-        app:layout_constraintTop_toTopOf="@id/iv_play_status" />
+        app:layout_constraintRight_toLeftOf="@id/tv_end_time" />
 
     <TextView
         android:id="@+id/tv_end_time"
-        android:layout_width="56dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginRight="12dp"
         android:gravity="center"
-        android:text="00:00:00"
+        android:minWidth="40dp"
+        android:text="00:00"
         android:textColor="@color/white"
         android:textSize="12sp"
         app:layout_constraintBaseline_toBaselineOf="@id/tv_start_time"
         app:layout_constraintLeft_toRightOf="@id/seek_bar"
-        app:layout_constraintRight_toLeftOf="@id/iv_full_screen" />
-
-    <ImageView
-        android:id="@+id/iv_full_screen"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:padding="10dp"
-        android:src="@mipmap/ic_full_screen"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
-
 
     <ProgressBar
         android:id="@+id/loading_bar"

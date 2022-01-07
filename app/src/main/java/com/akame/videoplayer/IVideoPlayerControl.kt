@@ -16,4 +16,6 @@ interface IVideoPlayerControl {
     fun setPlayListener(playerListener: VideoPlayListener)
 
     fun getDuration(): Long
+
+    fun getCurrentDuration(): Long
 }
