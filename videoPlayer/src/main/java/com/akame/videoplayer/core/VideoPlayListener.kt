@@ -1,6 +1,6 @@
 package com.akame.videoplayer.core
 
-import com.akame.videoplayer.VideoPlayStatus
+import com.akame.videoplayer.utils.VideoPlayStatus
 
 interface VideoPlayListener {
     //播放状态回调 暂停&播放

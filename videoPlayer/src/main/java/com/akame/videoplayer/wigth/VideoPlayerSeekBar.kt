@@ -1,4 +1,4 @@
-package com.akame.videoplayer
+package com.akame.videoplayer.wigth
 
 import android.content.Context
 import android.util.AttributeSet

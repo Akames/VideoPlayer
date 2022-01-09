@@ -1,32 +1,25 @@
-package com.akame.videoplayer
+package com.akame.videoplayer.core
 
-import android.app.Dialog
 import android.content.Context
 import android.view.SurfaceView
-import androidx.appcompat.app.AlertDialog
-import com.akame.videoplayer.core.VideoPlayListener
+import com.akame.videoplayer.utils.MediaType
+import com.akame.videoplayer.utils.VideoPlayStatus
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import kotlinx.coroutines.*
 
-class ExoPlayer(
-    context: Context, private val externalScope: CoroutineScope,
-    mediaType: MediaType, surfaceView: SurfaceView
-) :
-    IVideoPlayerControl {
-    private val player: Player
+class ExoVideoPlayerControl(context: Context, surfaceView: SurfaceView) : IVideoPlayerControl {
+    private val player by lazy {
+        ExoPlayer.Builder(context).build()
+    }
+    private lateinit var externalScope: CoroutineScope
     private var playerListener: VideoPlayListener? = null
     private var isRelease = false
+    var lastStatePlaying = false //当前是否处于播放状态
 
     init {
-        player = ExoPlayer.Builder(context).build().apply {
-            setMediaItem(createMediaItem(mediaType))
-            prepare()
-            play() // 自动播放
-            setVideoSurfaceView(surfaceView)
-        }
-
+        player.setVideoSurfaceView(surfaceView)
         player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 super.onIsPlayingChanged(isPlaying)
@@ -50,12 +43,21 @@ class ExoPlayer(
         })
     }
 
+    override fun setUp(externalScope: CoroutineScope, mediaType: MediaType, isAutoPlay: Boolean) {
+        this.externalScope = externalScope
+        player.setMediaItem(createMediaItem(mediaType))
+        player.prepare()
+        if (isAutoPlay) player.play()
+    }
+
     override fun play() {
         player.play()
+        lastStatePlaying = true
     }
 
     override fun pause() {
         player.pause()
+        lastStatePlaying = false
     }
 
     override fun isPlaying() = player.isPlaying
@@ -76,6 +78,16 @@ class ExoPlayer(
     override fun getDuration() = player.duration
 
     override fun getCurrentDuration(): Long = player.currentPosition
+
+    override fun onLifecyclePause() {
+        player.pause()
+    }
+
+    override fun onLifecycleResume() {
+        if (lastStatePlaying) {
+            player.play()
+        }
+    }
 
     private fun createMediaItem(mediaType: MediaType) = when (mediaType) {
         is MediaType.StringType -> MediaItem.fromUri(mediaType.mediaPath)

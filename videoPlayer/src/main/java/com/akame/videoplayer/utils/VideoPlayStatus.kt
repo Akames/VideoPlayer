@@ -1,4 +1,4 @@
-package com.akame.videoplayer
+package com.akame.videoplayer.utils
 
 enum class VideoPlayStatus {
     STATE_IDLE, //未开始

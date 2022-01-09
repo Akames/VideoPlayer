@@ -1,8 +1,11 @@
-package com.akame.videoplayer
+package com.akame.videoplayer.core
 
-import com.akame.videoplayer.core.VideoPlayListener
+import com.akame.videoplayer.utils.MediaType
+import kotlinx.coroutines.CoroutineScope
 
 interface IVideoPlayerControl {
+    fun setUp(externalScope: CoroutineScope, mediaType: MediaType, isAutoPlay: Boolean)
+
     fun play()
 
     fun pause()
@@ -18,4 +21,8 @@ interface IVideoPlayerControl {
     fun getDuration(): Long
 
     fun getCurrentDuration(): Long
+
+    fun onLifecyclePause()
+
+    fun onLifecycleResume()
 }

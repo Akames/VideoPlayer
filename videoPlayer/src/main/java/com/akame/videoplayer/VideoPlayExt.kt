@@ -1,11 +1,11 @@
 package com.akame.videoplayer
 
 import android.view.View
-import com.akame.videoplayer.databinding.LayoutVideoPlayControlBinding
+import com.akame.videoplayer.databinding.AkLayoutVideoPlayControlBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
-fun LayoutVideoPlayControlBinding.changeVisibility(goneRunnable: Runnable) {
+fun AkLayoutVideoPlayControlBinding.changeVisibility(goneRunnable: Runnable) {
     if (this.root.visibility == View.VISIBLE) {
         this.root.visibility = View.GONE
     } else {
@@ -14,9 +14,9 @@ fun LayoutVideoPlayControlBinding.changeVisibility(goneRunnable: Runnable) {
     }
 }
 
-fun LayoutVideoPlayControlBinding.showDelayGone(goneRunnable: Runnable, delayTime: Long = 3000) {
+fun AkLayoutVideoPlayControlBinding.showDelayGone(goneRunnable: Runnable, delayTime: Long = 3000) {
     this.root.removeCallbacks(goneRunnable)
     this.root.postDelayed(goneRunnable, delayTime)
 }
 
-val Long.MMSS get() = SimpleDateFormat("mm:ss", Locale.getDefault()).format(this)
+internal val Long.MMSS get() = SimpleDateFormat("mm:ss", Locale.getDefault()).format(this)
