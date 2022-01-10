@@ -14,9 +14,13 @@ object ScreenUtils {
      */
     fun setFullLandscape(
         activity: Activity,
+        isChangeOrientation: Boolean,
         orientation: Int = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
     ) {
-        activity.requestedOrientation = orientation
+        val currentOrganization = activity.resources.configuration.orientation
+        if (isChangeOrientation && currentOrganization != orientation) {
+            activity.requestedOrientation = orientation
+        }
         activity.window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
@@ -34,9 +38,13 @@ object ScreenUtils {
      */
     fun setOrientationPortrait(
         activity: Activity,
+        isChangeOrientation: Boolean,
         orientation: Int = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     ) {
-        activity.requestedOrientation = orientation
+        val currentOrganization = activity.resources.configuration.orientation
+        if (isChangeOrientation && currentOrganization != orientation) {
+            activity.requestedOrientation = orientation
+        }
         activity.window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         activity.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
     }

@@ -12,7 +12,7 @@
         android:layout_height="48dp"
         android:padding="12dp"
         android:src="@mipmap/ak_ic_play"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/space"
         app:layout_constraintLeft_toLeftOf="parent" />
 
     <TextView
@@ -59,6 +59,15 @@
         android:layout_height="48dp"
         android:padding="12dp"
         android:src="@mipmap/ak_ic_full_screen"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/iv_play_status"
         app:layout_constraintRight_toRightOf="parent" />
+
+    <Space
+        android:id="@+id/space"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        tools:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>

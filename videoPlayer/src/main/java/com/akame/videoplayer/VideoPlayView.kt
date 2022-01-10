@@ -71,7 +71,11 @@ class VideoPlayView(context: Context, attributeSet: AttributeSet) :
     }
 
     override fun onPlayingCurrentDuration(currentDuration: Long, bufferDuration: Long) {
-        videoControlLayer.onPlayingCurrentDuration(currentDuration,bufferDuration)
+        videoControlLayer.onPlayingCurrentDuration(currentDuration, bufferDuration)
+    }
+
+    override fun onVideoSizeChanged(videoWidth: Int, videoHeight: Int) {
+        videoControlLayer.onVideoSizeChanged(videoWidth, videoHeight)
     }
 
     override fun onResume(owner: LifecycleOwner) {

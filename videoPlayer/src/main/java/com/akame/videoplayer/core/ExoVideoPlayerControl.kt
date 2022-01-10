@@ -1,8 +1,10 @@
 package com.akame.videoplayer.core
 
 import android.content.Context
+import android.util.Log
 import android.view.SurfaceView
 import android.view.TextureView
+import android.view.ViewGroup
 import com.akame.videoplayer.utils.MediaType
 import com.akame.videoplayer.utils.VideoPlayStatus
 import com.google.android.exoplayer2.ExoPlayer
@@ -10,9 +12,10 @@ import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.upstream.HttpDataSource
+import com.google.android.exoplayer2.video.VideoSize
 import kotlinx.coroutines.*
 
-class ExoVideoPlayerControl(context: Context, playView: TextureView) : IVideoPlayerControl {
+class ExoVideoPlayerControl(context: Context, private val playView: TextureView) : IVideoPlayerControl {
     private val player by lazy {
         ExoPlayer.Builder(context).build()
     }
@@ -54,6 +57,11 @@ class ExoVideoPlayerControl(context: Context, playView: TextureView) : IVideoPla
                     player.prepare()
                     player.playWhenReady = lastStatePlaying
                 }
+            }
+
+            override fun onVideoSizeChanged(videoSize: VideoSize) {
+                super.onVideoSizeChanged(videoSize)
+                playerListener?.onVideoSizeChanged(videoSize.width, videoSize.height)
             }
         })
     }

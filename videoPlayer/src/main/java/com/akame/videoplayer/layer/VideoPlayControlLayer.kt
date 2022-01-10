@@ -28,6 +28,7 @@ class VideoPlayControlLayer(
     private var originalWidth = 0
     private var originalHeight = 0
     private var videoTitle: String = ""
+    private var isLanderVideo = false //是否是竖的视频
     private val autoRotationManager by lazy {
         AutoRotationScreenManager(context)
     }
@@ -99,15 +100,18 @@ class VideoPlayControlLayer(
         )
     }
 
+    fun onVideoSizeChanged(videoWidth: Int, videoHeight: Int) {
+        isLanderVideo = videoWidth >= videoHeight
+    }
+
     fun release() {
         autoRotationManager.release()
     }
 
     fun onBackPressed(): Boolean {
-        val orientation = context.resources.configuration.orientation
         val co = context
-        if (orientation != ActivityInfo.SCREEN_ORIENTATION_PORTRAIT && co is Activity) {
-            outFullScreen(co, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+        if (isEnterFullScreen() && co is Activity) {
+            exitFullScreen(co, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
             return false
         }
         return true
@@ -146,14 +150,18 @@ class VideoPlayControlLayer(
         controlBinding.ivFullScreen?.setOnClickListener {
             val context = context
             if (context is Activity) {
-                enterFullScreen(context, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+                if (isEnterFullScreen()) {
+                    exitFullScreen(context, ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                } else {
+                    enterFullScreen(context, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+                }
             }
         }
         //返回按钮退出全屏
         controlBinding.ivBack?.setOnClickListener {
             val context = context
             if (context is Activity) {
-                outFullScreen(context, ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                exitFullScreen(context, ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
             }
         }
     }
@@ -166,28 +174,27 @@ class VideoPlayControlLayer(
         orientation: Int,
         isAutoFullScreen: Boolean = false
     ) {
-        val cOrientation = context.resources.configuration.orientation
-        if (cOrientation == orientation || (isAutoFullScreen && !videoPlay.isPlaying())) {
+        if ((isAutoFullScreen && !videoPlay.isPlaying())) {
             return
         }
-        ScreenUtils.setFullLandscape(activity, orientation)
+        ScreenUtils.setFullLandscape(activity, isLanderVideo, orientation)
         val layoutParams = videoPlayView.layoutParams
         layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
         layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+        controlBinding.space?.visibility = View.VISIBLE
+        requestLayout()
     }
 
     /**
      * 退出全屏
      */
-    private fun outFullScreen(activity: Activity, orientation: Int) {
-        val cOrientation = context.resources.configuration.orientation
-        if (cOrientation == orientation) {
-            return
-        }
-        ScreenUtils.setOrientationPortrait(activity, orientation)
+    private fun exitFullScreen(activity: Activity, orientation: Int) {
+        ScreenUtils.setOrientationPortrait(activity, isLanderVideo, orientation)
         val layoutParams = videoPlayView.layoutParams
         layoutParams.width = originalWidth
         layoutParams.height = originalHeight
+        controlBinding.space?.visibility = View.GONE
+        requestLayout()
     }
 
     /**
@@ -205,5 +212,11 @@ class VideoPlayControlLayer(
                 enterFullScreen(context, orientation, true)
             }
         }
+    }
+
+    private fun isEnterFullScreen(): Boolean {
+        val layoutParams = videoPlayView.layoutParams
+        return layoutParams.width == ViewGroup.LayoutParams.MATCH_PARENT
+                && layoutParams.height == ViewGroup.LayoutParams.MATCH_PARENT
     }
 }

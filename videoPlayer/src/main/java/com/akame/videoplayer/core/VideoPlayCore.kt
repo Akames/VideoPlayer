@@ -2,6 +2,7 @@ package com.akame.videoplayer.core
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.SurfaceView
 import android.view.TextureView
 import android.view.ViewGroup
@@ -12,11 +13,13 @@ import kotlinx.coroutines.CoroutineScope
 abstract class VideoPlayCore(context: Context, attributeSet: AttributeSet) :
     FrameLayout(context, attributeSet) {
     private val textureView by lazy {
-        TextureView(context) .apply {
-            layoutParams = ViewGroup.LayoutParams(
+        TextureView(context).apply {
+            layoutParams = LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
-            )
+            ).apply {
+                gravity = Gravity.CENTER
+            }
         }
     }
 
