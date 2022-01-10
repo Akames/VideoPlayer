@@ -6,7 +6,8 @@ import android.widget.SeekBar
 import androidx.appcompat.widget.AppCompatSeekBar
 
 class VideoPlayerSeekBar(context: Context, attributeSet: AttributeSet) : AppCompatSeekBar(context, attributeSet), SeekBar.OnSeekBarChangeListener {
-    init {
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
         setOnSeekBarChangeListener(this)
     }
 
@@ -27,9 +28,10 @@ class VideoPlayerSeekBar(context: Context, attributeSet: AttributeSet) : AppComp
 
     var onSeekPosition: (progress: Float) -> Unit = {}
 
-    fun updateProgress(newProcess: Int) {
+    fun updateProgress(newProcess: Int, bufferProcess: Int) {
         if (!isTrackingTouch) {
             progress = newProcess
+            secondaryProgress = bufferProcess
         }
     }
 }

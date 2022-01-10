@@ -1,42 +1,47 @@
 package com.akame.videoplayer
 
 import android.content.Context
-import android.content.res.Configuration
-import android.graphics.Color
-import android.media.MediaMetadataRetriever
 import android.util.AttributeSet
+import android.util.Log
 import android.view.*
-import android.widget.ImageView
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.akame.videoplayer.core.VideoPlayCore
 import com.akame.videoplayer.core.VideoPlayListener
 import com.akame.videoplayer.layer.AlbumLayer
+import com.akame.videoplayer.layer.BufferLoadLayer
+import com.akame.videoplayer.layer.PlayCompleteLayer
 import com.akame.videoplayer.layer.VideoPlayControlLayer
 import com.akame.videoplayer.utils.MediaType
 import com.akame.videoplayer.utils.VideoPlayStatus
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class VideoPlayView(context: Context, attributeSet: AttributeSet) :
     VideoPlayCore(context, attributeSet), VideoPlayListener, DefaultLifecycleObserver {
     private val videoControlLayer by lazy {
-        VideoPlayControlLayer(this, videoPlay)
+        VideoPlayControlLayer(context, this, videoPlay)
     }
     private val albumLayer by lazy {
-        AlbumLayer()
+        AlbumLayer(context)
     }
-    private lateinit var controlView: View
+    private val playCompleteLayer by lazy {
+        PlayCompleteLayer(context, videoPlay).apply {
+            onBackClickListener = {
+                videoControlLayer.onBackPressed()
+            }
+        }
+    }
+    private val bufferLoadLayer by lazy {
+        BufferLoadLayer(context)
+    }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         videoPlay.setPlayListener(this)
-        val albumView = albumLayer.injectView(context)
-        addView(albumView)
-        controlView = videoControlLayer.injectView()
-        addView(controlView)
+        addView(videoControlLayer)
+        addView(albumLayer)
+        addView(bufferLoadLayer)
+        addView(playCompleteLayer)
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
@@ -55,22 +60,18 @@ class VideoPlayView(context: Context, attributeSet: AttributeSet) :
     }
 
     override fun onPlayError(error: String) {
-
+        bufferLoadLayer.onPlayerError()
+        videoControlLayer.onPlayerError()
     }
 
     override fun onPlaybackStateChanged(videoPlayStatus: VideoPlayStatus) {
         videoControlLayer.onPlaybackStateChanged(videoPlayStatus)
+        playCompleteLayer.onPlaybackStateChanged(videoPlayStatus)
+        bufferLoadLayer.onPlaybackStateChanged(videoPlayStatus)
     }
 
-    override fun onPlayingCurrentDuration(currentDuration: Long) {
-        videoControlLayer.onPlayingCurrentDuration(currentDuration)
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration?) {
-        super.onConfigurationChanged(newConfig)
-        removeView(controlView)
-        controlView = videoControlLayer.injectView()
-        addView(controlView)
+    override fun onPlayingCurrentDuration(currentDuration: Long, bufferDuration: Long) {
+        videoControlLayer.onPlayingCurrentDuration(currentDuration,bufferDuration)
     }
 
     override fun onResume(owner: LifecycleOwner) {
@@ -97,11 +98,12 @@ class VideoPlayView(context: Context, attributeSet: AttributeSet) :
         externalScope: CoroutineScope,
         mediaType: MediaType,
         videoTitle: String,
+        albumPath: String? = null,
         isAutoPlay: Boolean = true
     ) {
-        this.isAutoPlay = isAutoPlay
-        super.setup(externalScope, mediaType)
-        albumLayer.setAlbum(externalScope, mediaType)
-        videoControlLayer.setVideoTitle(videoTitle)
+        super.setup(externalScope, mediaType, isAutoPlay)
+        albumLayer.setUp(albumPath)
+        videoControlLayer.setUp(videoTitle)
+        playCompleteLayer.setUp(videoTitle)
     }
 }

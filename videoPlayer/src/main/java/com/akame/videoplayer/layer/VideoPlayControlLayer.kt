@@ -1,66 +1,68 @@
 package com.akame.videoplayer.layer
 
 import android.app.Activity
+import android.content.Context
 import android.content.pm.ActivityInfo
-import android.media.MediaMetadataRetriever
-import android.util.Log
+import android.content.res.Configuration
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.ImageView
 import com.akame.videoplayer.*
 import com.akame.videoplayer.core.IVideoPlayerControl
 import com.akame.videoplayer.MMSS
 import com.akame.videoplayer.VideoPlayView
 import com.akame.videoplayer.databinding.AkLayoutVideoPlayControlBinding
 import com.akame.videoplayer.utils.AutoRotationScreenManager
-import com.akame.videoplayer.utils.MediaType
 import com.akame.videoplayer.utils.ScreenUtils
 import com.akame.videoplayer.utils.VideoPlayStatus
-import kotlinx.coroutines.*
 import java.lang.Runnable
-import java.net.HttpURLConnection
-import java.net.URLConnection
-import javax.net.ssl.HttpsURLConnection
 
 class VideoPlayControlLayer(
+    private val mContext: Context,
     private val videoPlayView: VideoPlayView,
     private val videoPlay: IVideoPlayerControl
-) {
+) : FrameLayout(mContext) {
     private lateinit var controlBinding: AkLayoutVideoPlayControlBinding
-    private val goneRunnable = Runnable { controlBinding.root.visibility = FrameLayout.GONE }
+    private val goneRunnable = Runnable { visibility = View.GONE }
     private var originalWidth = 0
     private var originalHeight = 0
     private var videoTitle: String = ""
     private val autoRotationManager by lazy {
-        AutoRotationScreenManager(videoPlayView.context)
+        AutoRotationScreenManager(context)
     }
 
-    init {
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
         setAutoRotationListener()
+        injectView()
     }
 
-    fun injectView(): View {
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+        removeView(controlBinding.root)
+        injectView()
+    }
+
+    private fun injectView() {
         val view = LayoutInflater
-            .from(videoPlayView.context)
+            .from(context)
             .inflate(R.layout.ak_layout_video_play_control, null)
         controlBinding = AkLayoutVideoPlayControlBinding.bind(view)
-        controlBinding.changeVisibility(goneRunnable)
+        addView(controlBinding.root)
         initListener()
         initData()
-        return controlBinding.root
     }
 
     fun showDelayGone() {
-        controlBinding.showDelayGone(goneRunnable)
+        showDelayGone(goneRunnable)
     }
 
     fun changeVisibility() {
-        controlBinding.changeVisibility(goneRunnable)
+        changeVisibility(goneRunnable)
     }
 
-    fun setVideoTitle(videoTitle: String) {
+    fun setUp(videoTitle: String) {
         this.videoTitle = videoTitle
     }
 
@@ -72,26 +74,29 @@ class VideoPlayControlLayer(
     fun onPlaybackStateChanged(videoPlayStatus: VideoPlayStatus) {
         when (videoPlayStatus) {
             VideoPlayStatus.STATE_BUFFERING -> {
-                controlBinding.loadingBar.visibility = View.VISIBLE
+
             }
             VideoPlayStatus.STATE_READY -> {
+                showDelayGone()
                 controlBinding.tvEndTime.text = videoPlay.getDuration().MMSS
-                controlBinding.loadingBar.visibility = View.GONE
             }
 
-            VideoPlayStatus.STATE_IDLE ->{
+            VideoPlayStatus.STATE_IDLE -> {
 
             }
 
-            VideoPlayStatus.STATE_ENDED ->{
-
+            VideoPlayStatus.STATE_ENDED -> {
+                visibility = View.GONE
             }
         }
     }
 
-    fun onPlayingCurrentDuration(currentDuration: Long) {
+    fun onPlayingCurrentDuration(currentDuration: Long, bufferDuration: Long) {
         controlBinding.tvStartTime.text = currentDuration.MMSS
-        controlBinding.seekBar.updateProgress((currentDuration * 1f / videoPlay.getDuration() * 100).toInt())
+        controlBinding.seekBar.updateProgress(
+            (currentDuration * 1f / videoPlay.getDuration() * 100).toInt(),
+            (bufferDuration * 1f / videoPlay.getDuration() * 100).toInt()
+        )
     }
 
     fun release() {
@@ -99,13 +104,17 @@ class VideoPlayControlLayer(
     }
 
     fun onBackPressed(): Boolean {
-        val orientation = videoPlayView.context.resources.configuration.orientation
-        val co = videoPlayView.context
+        val orientation = context.resources.configuration.orientation
+        val co = context
         if (orientation != ActivityInfo.SCREEN_ORIENTATION_PORTRAIT && co is Activity) {
             outFullScreen(co, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
             return false
         }
         return true
+    }
+
+    fun onPlayerError() {
+        visibility = View.GONE
     }
 
     private fun initData() {
@@ -114,7 +123,7 @@ class VideoPlayControlLayer(
         originalHeight = videoPlayView.height
         controlBinding.tvTitle?.text = videoTitle
         onIsPlayingChanged(videoPlay.isPlaying())
-        onPlayingCurrentDuration(videoPlay.getCurrentDuration())
+        onPlayingCurrentDuration(videoPlay.getCurrentDuration(), videoPlay.getBufferDuration())
         controlBinding.tvEndTime.text = videoPlay.getDuration().MMSS
     }
 
@@ -131,18 +140,18 @@ class VideoPlayControlLayer(
         controlBinding.seekBar.onSeekPosition = {
             val seekToProcess = (videoPlay.getDuration() * it).toLong()
             videoPlay.seekTo(seekToProcess)
-            onPlayingCurrentDuration(seekToProcess)
+            onPlayingCurrentDuration(seekToProcess, videoPlay.getBufferDuration())
         }
         //全屏按钮进入全屏
         controlBinding.ivFullScreen?.setOnClickListener {
-            val context = videoPlayView.context
+            val context = context
             if (context is Activity) {
                 enterFullScreen(context, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
             }
         }
         //返回按钮退出全屏
         controlBinding.ivBack?.setOnClickListener {
-            val context = videoPlayView.context
+            val context = context
             if (context is Activity) {
                 outFullScreen(context, ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
             }
@@ -157,7 +166,7 @@ class VideoPlayControlLayer(
         orientation: Int,
         isAutoFullScreen: Boolean = false
     ) {
-        val cOrientation = videoPlayView.context.resources.configuration.orientation
+        val cOrientation = context.resources.configuration.orientation
         if (cOrientation == orientation || (isAutoFullScreen && !videoPlay.isPlaying())) {
             return
         }
@@ -171,7 +180,7 @@ class VideoPlayControlLayer(
      * 退出全屏
      */
     private fun outFullScreen(activity: Activity, orientation: Int) {
-        val cOrientation = videoPlayView.context.resources.configuration.orientation
+        val cOrientation = context.resources.configuration.orientation
         if (cOrientation == orientation) {
             return
         }
@@ -191,7 +200,7 @@ class VideoPlayControlLayer(
             } else {
                 ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             }
-            val context = videoPlayView.context
+            val context = context
             if (context is Activity) {
                 enterFullScreen(context, orientation, true)
             }
