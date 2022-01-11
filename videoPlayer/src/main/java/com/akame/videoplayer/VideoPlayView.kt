@@ -13,13 +13,15 @@ import com.akame.videoplayer.layer.BufferLoadLayer
 import com.akame.videoplayer.layer.PlayCompleteLayer
 import com.akame.videoplayer.layer.VideoPlayControlLayer
 import com.akame.videoplayer.utils.MediaType
+import com.akame.videoplayer.utils.ScreenUtils
 import com.akame.videoplayer.utils.VideoPlayStatus
 import kotlinx.coroutines.CoroutineScope
 
 class VideoPlayView(context: Context, attributeSet: AttributeSet) :
     VideoPlayCore(context, attributeSet), VideoPlayListener, DefaultLifecycleObserver {
+
     private val videoControlLayer by lazy {
-        VideoPlayControlLayer(context, this, videoPlay)
+        VideoPlayControlLayer(context, videoPlay)
     }
     private val albumLayer by lazy {
         AlbumLayer(context)
@@ -42,6 +44,19 @@ class VideoPlayView(context: Context, attributeSet: AttributeSet) :
         addView(albumLayer)
         addView(bufferLoadLayer)
         addView(playCompleteLayer)
+
+        videoControlLayer.onEnterFullScreen = {
+            val layoutParams = layoutParams
+            layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
+            layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+            super.onEnterFullScreen()
+        }
+        videoControlLayer.onExitFullScreen = {
+            val layoutParams = layoutParams
+            layoutParams.width = originalWidth
+            layoutParams.height = originalHeight
+            super.onExitFullScreen()
+        }
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
@@ -75,6 +90,7 @@ class VideoPlayView(context: Context, attributeSet: AttributeSet) :
     }
 
     override fun onVideoSizeChanged(videoWidth: Int, videoHeight: Int) {
+        super.onParentVideoSizeChanged(videoWidth, videoHeight, originalWidth, originalHeight)
         videoControlLayer.onVideoSizeChanged(videoWidth, videoHeight)
     }
 

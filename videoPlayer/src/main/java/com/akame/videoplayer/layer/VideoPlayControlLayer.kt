@@ -6,12 +6,10 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.akame.videoplayer.*
 import com.akame.videoplayer.core.IVideoPlayerControl
 import com.akame.videoplayer.MMSS
-import com.akame.videoplayer.VideoPlayView
 import com.akame.videoplayer.databinding.AkLayoutVideoPlayControlBinding
 import com.akame.videoplayer.utils.AutoRotationScreenManager
 import com.akame.videoplayer.utils.ScreenUtils
@@ -20,15 +18,15 @@ import java.lang.Runnable
 
 class VideoPlayControlLayer(
     private val mContext: Context,
-    private val videoPlayView: VideoPlayView,
     private val videoPlay: IVideoPlayerControl
 ) : FrameLayout(mContext) {
     private lateinit var controlBinding: AkLayoutVideoPlayControlBinding
     private val goneRunnable = Runnable { visibility = View.GONE }
-    private var originalWidth = 0
-    private var originalHeight = 0
     private var videoTitle: String = ""
     private var isLanderVideo = false //是否是竖的视频
+    private var isEnterFullScreen = false //是否进入全屏
+    private var lastOrganization = -1
+
     private val autoRotationManager by lazy {
         AutoRotationScreenManager(context)
     }
@@ -110,7 +108,7 @@ class VideoPlayControlLayer(
 
     fun onBackPressed(): Boolean {
         val co = context
-        if (isEnterFullScreen() && co is Activity) {
+        if (isEnterFullScreen && co is Activity) {
             exitFullScreen(co, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
             return false
         }
@@ -121,10 +119,14 @@ class VideoPlayControlLayer(
         visibility = View.GONE
     }
 
+    //进入全屏回调
+    var onEnterFullScreen: (() -> Unit)? = null
+
+    //退出全屏回调
+    var onExitFullScreen: (() -> Unit)? = null
+
     private fun initData() {
         controlBinding.seekBar.max = 100
-        originalWidth = videoPlayView.width
-        originalHeight = videoPlayView.height
         controlBinding.tvTitle?.text = videoTitle
         onIsPlayingChanged(videoPlay.isPlaying())
         onPlayingCurrentDuration(videoPlay.getCurrentDuration(), videoPlay.getBufferDuration())
@@ -150,7 +152,7 @@ class VideoPlayControlLayer(
         controlBinding.ivFullScreen?.setOnClickListener {
             val context = context
             if (context is Activity) {
-                if (isEnterFullScreen()) {
+                if (isEnterFullScreen) {
                     exitFullScreen(context, ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
                 } else {
                     enterFullScreen(context, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
@@ -166,6 +168,7 @@ class VideoPlayControlLayer(
         }
     }
 
+
     /**
      * 进入全屏
      */
@@ -177,11 +180,14 @@ class VideoPlayControlLayer(
         if ((isAutoFullScreen && !videoPlay.isPlaying())) {
             return
         }
+        if (lastOrganization == orientation) {
+            return
+        }
         ScreenUtils.setFullLandscape(activity, isLanderVideo, orientation)
-        val layoutParams = videoPlayView.layoutParams
-        layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
-        layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
         controlBinding.space?.visibility = View.VISIBLE
+        onEnterFullScreen?.invoke()
+        isEnterFullScreen = true
+        lastOrganization = orientation
         requestLayout()
     }
 
@@ -189,11 +195,14 @@ class VideoPlayControlLayer(
      * 退出全屏
      */
     private fun exitFullScreen(activity: Activity, orientation: Int) {
+        if (lastOrganization == orientation) {
+            return
+        }
         ScreenUtils.setOrientationPortrait(activity, isLanderVideo, orientation)
-        val layoutParams = videoPlayView.layoutParams
-        layoutParams.width = originalWidth
-        layoutParams.height = originalHeight
         controlBinding.space?.visibility = View.GONE
+        onExitFullScreen?.invoke()
+        isEnterFullScreen = false
+        lastOrganization = orientation
         requestLayout()
     }
 
@@ -212,11 +221,5 @@ class VideoPlayControlLayer(
                 enterFullScreen(context, orientation, true)
             }
         }
-    }
-
-    private fun isEnterFullScreen(): Boolean {
-        val layoutParams = videoPlayView.layoutParams
-        return layoutParams.width == ViewGroup.LayoutParams.MATCH_PARENT
-                && layoutParams.height == ViewGroup.LayoutParams.MATCH_PARENT
     }
 }

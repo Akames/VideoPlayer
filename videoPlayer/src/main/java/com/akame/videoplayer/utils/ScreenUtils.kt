@@ -1,6 +1,7 @@
 package com.akame.videoplayer.utils
 
 import android.app.Activity
+import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.view.View
@@ -48,4 +49,8 @@ object ScreenUtils {
         activity.window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         activity.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
     }
+
+    fun getScreenWidth(context: Context) = context.resources.displayMetrics.widthPixels
+
+    fun getScreenHeight(context: Context) = context.resources.displayMetrics.heightPixels
 }
