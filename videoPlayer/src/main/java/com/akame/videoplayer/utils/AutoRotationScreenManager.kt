@@ -2,20 +2,30 @@ package com.akame.videoplayer.utils
 
 import android.content.Context
 import android.view.OrientationEventListener
+import kotlinx.coroutines.*
 
 /**
  * 根据重力感应自动旋转
  */
 class AutoRotationScreenManager(private val context: Context) {
+    @Volatile
+    private var canConsumption = true
+    private var scopeJob: Job? = null
+
+    //是否自动进入得全屏
+    var isAutoFullScreen = false
     private val orientationListener = object : OrientationEventListener(context) {
         override fun onOrientationChanged(orientation: Int) {
-            if (orientation <= 0) {
+            if (orientation <= 0 || !canConsumption) {
                 return
             }
+            canConsumption = false
             when (orientation) {
                 // 竖屏 头朝上
                 in 0..60 -> {
-                    outFullScreen?.invoke()
+                    if (isAutoFullScreen) {
+                        exitFullScreen?.invoke()
+                    }
                 }
                 //横屏 头朝右
                 in 60..120 -> {
@@ -23,7 +33,9 @@ class AutoRotationScreenManager(private val context: Context) {
                 }
                 //竖屏 头朝下
                 in 120..210 -> {
-                    outFullScreen?.invoke()
+                    if (isAutoFullScreen) {
+                        exitFullScreen?.invoke()
+                    }
                 }
                 //横屏 头朝左
                 in 210..300 -> {
@@ -31,9 +43,12 @@ class AutoRotationScreenManager(private val context: Context) {
                 }
                 //竖屏 头朝下
                 else -> {
-                    outFullScreen?.invoke()
+                    if (isAutoFullScreen) {
+                        exitFullScreen?.invoke()
+                    }
                 }
             }
+            changeConsumptionStatus()
         }
     }
 
@@ -47,10 +62,18 @@ class AutoRotationScreenManager(private val context: Context) {
 
     fun release() {
         orientationListener.disable()
+        scopeJob?.cancel()
     }
 
     // boolean 参数表示是否为ReverseLandSpace
     var enterFullScreen: ((Boolean) -> Unit)? = null
 
-    var outFullScreen: (() -> Unit)? = null
+    var exitFullScreen: (() -> Unit)? = null
+
+    private fun changeConsumptionStatus() {
+        scopeJob = CoroutineScope(Dispatchers.IO).launch {
+            delay(800)
+            canConsumption = true
+        }
+    }
 }

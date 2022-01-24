@@ -177,6 +177,7 @@ class VideoPlayControlLayer(
         orientation: Int,
         isAutoFullScreen: Boolean = false
     ) {
+        autoRotationManager.isAutoFullScreen = isAutoFullScreen
         if ((isAutoFullScreen && !videoPlay.isPlaying())) {
             return
         }
@@ -219,6 +220,14 @@ class VideoPlayControlLayer(
             val context = context
             if (context is Activity) {
                 enterFullScreen(context, orientation, true)
+            }
+        }
+
+        autoRotationManager.exitFullScreen = {
+            val context = context
+            if (context is Activity) {
+                val orientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                exitFullScreen(context, orientation)
             }
         }
     }
