@@ -177,7 +177,7 @@ class VideoPlayControlLayer(
         orientation: Int,
         isAutoFullScreen: Boolean = false
     ) {
-        autoRotationManager.isAutoFullScreen = isAutoFullScreen
+        autoRotationManager.isAutoEnterFulls = isAutoFullScreen
         if ((isAutoFullScreen && !videoPlay.isPlaying())) {
             return
         }
@@ -195,7 +195,8 @@ class VideoPlayControlLayer(
     /**
      * 退出全屏
      */
-    private fun exitFullScreen(activity: Activity, orientation: Int) {
+    private fun exitFullScreen(activity: Activity, orientation: Int, isAutoExitFullsScreen: Boolean = false) {
+        autoRotationManager.isAutoExitFulls = isAutoExitFullsScreen
         if (lastOrganization == orientation) {
             return
         }
@@ -227,7 +228,7 @@ class VideoPlayControlLayer(
             val context = context
             if (context is Activity) {
                 val orientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                exitFullScreen(context, orientation)
+                exitFullScreen(context, orientation, true)
             }
         }
     }
