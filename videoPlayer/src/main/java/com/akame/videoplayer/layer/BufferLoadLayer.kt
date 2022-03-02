@@ -24,8 +24,7 @@ class BufferLoadLayer(context: Context) : FrameLayout(context) {
         }
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
+    init {
         layoutParams = LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         val bufferLoadView = LayoutInflater.from(context).inflate(R.layout.ak_layout_buffer_load, null)
         binding = AkLayoutBufferLoadBinding.bind(bufferLoadView)

@@ -1,5 +1,6 @@
 package com.akame.videoplayer
 
+import android.app.Activity
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
@@ -17,9 +18,10 @@ import com.akame.videoplayer.utils.ScreenUtils
 import com.akame.videoplayer.utils.VideoPlayStatus
 import kotlinx.coroutines.CoroutineScope
 
-class VideoPlayView(context: Context, attributeSet: AttributeSet) :
+class AkVideoPlayView(context: Context, attributeSet: AttributeSet) :
     VideoPlayCore(context, attributeSet), VideoPlayListener, DefaultLifecycleObserver {
-
+    private var viewPosition = -1
+    private var videoViewParent: ViewGroup? = null
     private val videoControlLayer by lazy {
         VideoPlayControlLayer(context, videoPlay)
     }
@@ -37,8 +39,7 @@ class VideoPlayView(context: Context, attributeSet: AttributeSet) :
         BufferLoadLayer(context)
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
+    init {
         videoPlay.setPlayListener(this)
         addView(videoControlLayer)
         addView(albumLayer)
@@ -50,12 +51,29 @@ class VideoPlayView(context: Context, attributeSet: AttributeSet) :
             layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
             layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
             super.onEnterFullScreen()
+            if (viewPosition == -1 || videoViewParent == null) {
+                val contentView = (context as Activity).findViewById<ViewGroup>(android.R.id.content)
+                this.parent?.let {
+                    if (it is ViewGroup) {
+                        viewPosition = it.indexOfChild(this)
+                        videoViewParent = it
+                        it.removeView(this)
+                    }
+                }
+                contentView.addView(this)
+            }
         }
+
         videoControlLayer.onExitFullScreen = {
             val layoutParams = layoutParams
             layoutParams.width = originalWidth
             layoutParams.height = originalHeight
             super.onExitFullScreen()
+            val contentView = (context as Activity).findViewById<ViewGroup>(android.R.id.content)
+            contentView.removeView(this)
+            videoViewParent?.addView(this, viewPosition)
+            viewPosition = -1
+            videoViewParent = null
         }
     }
 

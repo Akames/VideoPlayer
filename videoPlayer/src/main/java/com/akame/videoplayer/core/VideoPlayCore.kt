@@ -35,8 +35,7 @@ abstract class VideoPlayCore(context: Context, attributeSet: AttributeSet) :
         ExoVideoPlayerControl(context, textureView)
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
+    init {
         setBackgroundColor(Color.BLACK)
         textureView.parent?.let {
             if (it is ViewGroup) {

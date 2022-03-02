@@ -21,9 +21,7 @@ class AlbumLayer(context: Context) : FrameLayout(context) {
             ViewGroup.LayoutParams.MATCH_PARENT
         )
     }
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
+    init {
         addView(albumImageView)
     }
 

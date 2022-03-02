@@ -31,8 +31,7 @@ class VideoPlayControlLayer(
         AutoRotationScreenManager(context)
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
+    init {
         setAutoRotationListener()
         injectView()
     }
