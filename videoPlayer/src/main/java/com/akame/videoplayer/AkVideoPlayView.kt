@@ -40,11 +40,12 @@ class AkVideoPlayView(context: Context, attributeSet: AttributeSet) :
     }
 
     init {
-        videoPlay.setPlayListener(this)
         addView(videoControlLayer)
         addView(albumLayer)
         addView(bufferLoadLayer)
         addView(playCompleteLayer)
+        videoPlay.setPlayListener(this)
+
 
         videoControlLayer.onEnterFullScreen = {
             val layoutParams = layoutParams

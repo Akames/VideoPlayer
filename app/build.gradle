@@ -48,4 +48,6 @@ dependencies {
 //    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0"
 
     implementation project(':videoPlayer')
+
+    implementation 'com.geyifeng.immersionbar:immersionbar:3.2.1'
 }
