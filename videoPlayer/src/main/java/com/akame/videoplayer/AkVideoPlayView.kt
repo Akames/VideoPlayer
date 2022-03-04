@@ -52,7 +52,7 @@ class AkVideoPlayView(context: Context, attributeSet: AttributeSet) : VideoPlayC
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        if (event?.action == MotionEvent.ACTION_DOWN) {
+        if (event?.action== MotionEvent.ACTION_DOWN){
             videoControlLayer.changeVisibility()
         }
         return super.onTouchEvent(event)
