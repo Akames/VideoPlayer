@@ -1,7 +1,7 @@
 package com.akame.videoplayer
 
 import android.view.View
-import com.akame.videoplayer.databinding.AkLayoutVideoPlayControlBinding
+import android.view.ViewGroup
 import com.akame.videoplayer.layer.VideoPlayControlLayer
 import java.text.SimpleDateFormat
 import java.util.*
@@ -21,3 +21,12 @@ fun VideoPlayControlLayer.showDelayGone(goneRunnable: Runnable, delayTime: Long 
 }
 
 internal val Long.MMSS get() = SimpleDateFormat("mm:ss", Locale.getDefault()).format(this)
+
+internal fun View.cleanParent():View{
+    this.parent?.let {
+        if (it is ViewGroup) {
+            it.removeView(this)
+        }
+    }
+    return this
+}

@@ -188,7 +188,6 @@ class VideoPlayControlLayer(
         onEnterFullScreen?.invoke()
         isEnterFullScreen = true
         lastOrganization = orientation
-        requestLayout()
     }
 
     /**
@@ -204,7 +203,6 @@ class VideoPlayControlLayer(
         onExitFullScreen?.invoke()
         isEnterFullScreen = false
         lastOrganization = orientation
-        requestLayout()
     }
 
     /**

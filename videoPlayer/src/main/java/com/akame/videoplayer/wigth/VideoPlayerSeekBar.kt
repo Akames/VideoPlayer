@@ -6,6 +6,7 @@ import android.widget.SeekBar
 import androidx.appcompat.widget.AppCompatSeekBar
 
 class VideoPlayerSeekBar(context: Context, attributeSet: AttributeSet) : AppCompatSeekBar(context, attributeSet), SeekBar.OnSeekBarChangeListener {
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         setOnSeekBarChangeListener(this)
