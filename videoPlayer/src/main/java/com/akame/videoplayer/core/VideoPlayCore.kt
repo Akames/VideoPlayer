@@ -1,10 +1,8 @@
 package com.akame.videoplayer.core
 
 import android.content.Context
-import android.content.res.Configuration
 import android.graphics.Color
 import android.util.AttributeSet
-import android.util.Log
 import android.view.Gravity
 import android.view.TextureView
 import android.view.ViewGroup
@@ -13,8 +11,6 @@ import com.akame.videoplayer.cleanParent
 import com.akame.videoplayer.utils.MediaType
 import com.akame.videoplayer.utils.ScreenUtils
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import java.util.*
 
 abstract class VideoPlayCore(context: Context, attributeSet: AttributeSet) :
     FrameLayout(context, attributeSet), VideoPlayListener {
@@ -72,18 +68,24 @@ abstract class VideoPlayCore(context: Context, attributeSet: AttributeSet) :
     }
 
     fun onEnterFullScreen() {
-//        //获取全屏的宽高
-//        val widthPixels = ScreenUtils.getScreenWidth(context)
-//        val heightPixels = ScreenUtils.getScreenHeight(context)
-//        //因为是发生了旋转。所有宽高要倒过来
-//        val reverse = context.resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE
-//        val isLandVideo = videoWidth > videoHeight //是否为横屏的视频
-//        if (reverse && isLandVideo) {
-//            updateVideoPlaySize(heightPixels, widthPixels)
-//        } else {
-//            updateVideoPlaySize(widthPixels, heightPixels)
-//        }
-        setLayoutFullScreen()
+        val videoViewLP = textureView.layoutParams
+        if (fullLayoutParamsWidth > 0 && fullLayoutParamsHeight > 0) {
+            videoViewLP.width = fullLayoutParamsWidth
+            videoViewLP.height = fullLayoutParamsHeight
+            return
+        }
+        val videoLand = videoWidth > videoHeight
+        if (videoLand) {
+            videoViewLP.height = ScreenUtils.getScreenWidth(context)
+            val ratio = videoViewLP.height * 1f / videoHeight
+            videoViewLP.width = (videoWidth * ratio).toInt()
+        } else {
+            videoViewLP.width = ScreenUtils.getScreenWidth(context)
+            val ratio = videoViewLP.width * 1f / videoWidth
+            videoViewLP.height = (videoHeight * ratio).toInt()
+        }
+        fullLayoutParamsWidth = videoViewLP.width
+        fullLayoutParamsHeight = videoViewLP.height
     }
 
     fun onExitFullScreen() {
@@ -95,8 +97,8 @@ abstract class VideoPlayCore(context: Context, attributeSet: AttributeSet) :
 
     private fun setVideoDefaultLayoutParams() {
         val videoViewLP = textureView.layoutParams
-        val videLand = videoWidth > videoHeight
-        if (videLand) {
+        val videoLand = videoWidth > videoHeight
+        if (videoLand) {
             videoViewLP.width = width
             val ratio = videoViewLP.width * 1f / videoWidth
             videoViewLP.height = (videoHeight * ratio).toInt()
@@ -107,22 +109,6 @@ abstract class VideoPlayCore(context: Context, attributeSet: AttributeSet) :
         }
         defaultLayoutParamsWidth = videoViewLP.width
         defaultLayoutParamsHeight = videoViewLP.height
-    }
-
-    private fun setLayoutFullScreen() {
-        val videoViewLP = textureView.layoutParams
-        if (fullLayoutParamsWidth > 0 && fullLayoutParamsHeight > 0) {
-            videoViewLP.width = fullLayoutParamsWidth
-            videoViewLP.height = fullLayoutParamsHeight
-            return
-        }
-        post {
-            videoViewLP.height = height
-            val ratio = videoViewLP.height * 1f / videoHeight
-            videoViewLP.width = (videoWidth * ratio).toInt()
-            fullLayoutParamsWidth = videoViewLP.width
-            fullLayoutParamsHeight = videoViewLP.height
-        }
     }
 
     private fun reset() {
