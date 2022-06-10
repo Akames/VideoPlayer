@@ -1,12 +1,10 @@
 package com.akame.videoplayer.utils
 
 import android.app.Activity
+import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Build
-import android.view.View
-import android.view.WindowInsets
-import android.view.WindowInsetsController
-import android.view.WindowManager
+import android.view.*
 
 object ScreenUtils {
     /**
@@ -14,19 +12,14 @@ object ScreenUtils {
      */
     fun setFullLandscape(
         activity: Activity,
+        isChangeOrientation: Boolean,
         orientation: Int = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
     ) {
-        activity.requestedOrientation = orientation
-        activity.window.setFlags(
-            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            WindowManager.LayoutParams.FLAG_FULLSCREEN
-        )
-        activity.window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+        val currentOrganization = activity.resources.configuration.orientation
+        if (isChangeOrientation && currentOrganization != orientation) {
+            activity.requestedOrientation = orientation
+        }
+        hideSystemUI(activity.window)
     }
 
     /**
@@ -34,10 +27,32 @@ object ScreenUtils {
      */
     fun setOrientationPortrait(
         activity: Activity,
+        isChangeOrientation: Boolean,
         orientation: Int = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     ) {
-        activity.requestedOrientation = orientation
-        activity.window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-        activity.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+        val currentOrganization = activity.resources.configuration.orientation
+        if (isChangeOrientation && currentOrganization != orientation) {
+            activity.requestedOrientation = orientation
+        }
+        showSystemUI(activity.window)
     }
+
+    private fun hideSystemUI(window:Window) {
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN)
+    }
+
+    private fun showSystemUI(window: Window) {
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
+    }
+
+    fun getScreenWidth(context: Context) = context.resources.displayMetrics.widthPixels
+
+    fun getScreenHeight(context: Context) = context.resources.displayMetrics.heightPixels
 }

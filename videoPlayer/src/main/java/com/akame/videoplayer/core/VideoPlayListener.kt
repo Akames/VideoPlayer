@@ -13,5 +13,8 @@ interface VideoPlayListener {
     fun onPlaybackStateChanged(videoPlayStatus: VideoPlayStatus)
 
     //当前播放进度
-    fun onPlayingCurrentDuration(currentDuration: Long)
+    fun onPlayingCurrentDuration(currentDuration: Long, bufferDuration: Long)
+
+    //当前视频宽高
+    fun onVideoSizeChanged(videoWidth: Int, videoHeight: Int)
 }
