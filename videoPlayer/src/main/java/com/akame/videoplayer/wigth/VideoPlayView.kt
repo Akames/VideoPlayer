@@ -7,6 +7,7 @@ import android.view.*
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.akame.videoplayer.core.VideoPlayCore
+import com.akame.videoplayer.impl.IVideoPlayListener
 import com.akame.videoplayer.layer.AlbumLayer
 import com.akame.videoplayer.layer.BufferLoadLayer
 import com.akame.videoplayer.layer.PlayCompleteLayer
@@ -15,7 +16,8 @@ import com.akame.videoplayer.utils.MediaType
 import com.akame.videoplayer.utils.VideoPlayStatus
 import kotlinx.coroutines.CoroutineScope
 
-class VideoPlayView(context: Context, attributeSet: AttributeSet) : VideoPlayCore(context, attributeSet), DefaultLifecycleObserver {
+class VideoPlayView(context: Context, attributeSet: AttributeSet) :
+    VideoPlayCore(context, attributeSet), DefaultLifecycleObserver {
     private var viewPosition = -1
     private var videoViewParent: ViewGroup? = null
     private val videoControlLayer by lazy {
@@ -101,6 +103,10 @@ class VideoPlayView(context: Context, attributeSet: AttributeSet) : VideoPlayCor
         return videoControlLayer.onBackPressed()
     }
 
+    fun setVideoPlayListener(listener: IVideoPlayListener) {
+        videoControlLayer.videoPlayListener = listener
+    }
+
     fun setup(
         externalScope: CoroutineScope,
         mediaType: MediaType,
@@ -122,7 +128,8 @@ class VideoPlayView(context: Context, attributeSet: AttributeSet) : VideoPlayCor
             lp.height = ViewGroup.LayoutParams.MATCH_PARENT
             super.onEnterFullScreen()
             if (viewPosition == -1 || videoViewParent == null) {
-                val contentView = (context as Activity).findViewById<ViewGroup>(android.R.id.content)
+                val contentView =
+                    (context as Activity).findViewById<ViewGroup>(android.R.id.content)
                 this.parent?.let {
                     if (it is ViewGroup) {
                         viewPosition = it.indexOfChild(this)

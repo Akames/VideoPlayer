@@ -1,9 +1,12 @@
 package com.akame.videoplayer
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Context
 import android.os.Bundle
+import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.akame.videoplayer.databinding.ActivityVideoPlayBinding
+import com.akame.videoplayer.impl.IVideoPlayListener
 import com.akame.videoplayer.utils.MediaType
 
 class VideoPlayActivity : AppCompatActivity() {
@@ -34,6 +37,19 @@ class VideoPlayActivity : AppCompatActivity() {
             val videoMediaType = MediaType.StringType(videpath)
             binding.videoPlay.setup(lifecycleScope, videoMediaType, "你的选择没有错", isAutoPlay = false)
         }
+        binding.videoPlay.setVideoPlayListener(object : IVideoPlayListener {
+            override fun enterFullScreen() {
+                val imm: InputMethodManager =
+                    getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.showSoftInput(binding.videoPlay, InputMethodManager.SHOW_FORCED)
+                imm.hideSoftInputFromWindow(binding.videoPlay.windowToken, 0) //强制隐藏键盘
+                binding.videoPlay.requestFocus()
+            }
+
+            override fun exitFullScreen() {
+
+            }
+        })
     }
 
     override fun onBackPressed() {

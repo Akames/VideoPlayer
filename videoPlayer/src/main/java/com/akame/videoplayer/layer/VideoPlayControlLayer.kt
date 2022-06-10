@@ -11,6 +11,7 @@ import com.akame.videoplayer.*
 import com.akame.videoplayer.core.IVideoPlayerControl
 import com.akame.videoplayer.MMSS
 import com.akame.videoplayer.databinding.AkLayoutVideoPlayControlBinding
+import com.akame.videoplayer.impl.IVideoPlayListener
 import com.akame.videoplayer.utils.AutoRotationScreenManager
 import com.akame.videoplayer.utils.ScreenUtils
 import com.akame.videoplayer.utils.VideoPlayStatus
@@ -31,6 +32,8 @@ class VideoPlayControlLayer(
         AutoRotationScreenManager(context)
     }
 
+    var videoPlayListener: IVideoPlayListener? = null
+
     init {
         setAutoRotationListener()
         injectView()
@@ -43,9 +46,7 @@ class VideoPlayControlLayer(
     }
 
     private fun injectView() {
-        val view = LayoutInflater
-            .from(context)
-            .inflate(R.layout.ak_layout_video_play_control, null)
+        val view = LayoutInflater.from(context).inflate(R.layout.ak_layout_video_play_control, null)
         controlBinding = AkLayoutVideoPlayControlBinding.bind(view)
         addView(controlBinding.root)
         initListener()
@@ -188,12 +189,17 @@ class VideoPlayControlLayer(
         onEnterFullScreen?.invoke()
         isEnterFullScreen = true
         lastOrganization = orientation
+        videoPlayListener?.enterFullScreen()
     }
 
     /**
      * 退出全屏
      */
-    private fun exitFullScreen(activity: Activity, orientation: Int, isAutoExitFullsScreen: Boolean = false) {
+    private fun exitFullScreen(
+        activity: Activity,
+        orientation: Int,
+        isAutoExitFullsScreen: Boolean = false
+    ) {
         autoRotationManager.isAutoExitFulls = isAutoExitFullsScreen
         if (lastOrganization == orientation) {
             return
@@ -203,6 +209,7 @@ class VideoPlayControlLayer(
         onExitFullScreen?.invoke()
         isEnterFullScreen = false
         lastOrganization = orientation
+        videoPlayListener?.exitFullScreen()
     }
 
     /**

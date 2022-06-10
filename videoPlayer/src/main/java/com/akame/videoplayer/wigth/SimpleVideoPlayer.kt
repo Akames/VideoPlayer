@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import androidx.lifecycle.Lifecycle
+import com.akame.videoplayer.impl.IVideoPlayListener
 import com.akame.videoplayer.utils.MediaType
 import kotlinx.coroutines.CoroutineScope
 
@@ -33,5 +34,9 @@ class SimpleVideoPlayer(context: Context, attributeSet: AttributeSet) :
         isAutoPlay: Boolean = true
     ) {
         videoView.setup(externalScope, mediaType, videoTitle, albumPath, isAutoPlay)
+    }
+
+    fun setVideoPlayListener(listener: IVideoPlayListener){
+        videoView.setVideoPlayListener(listener)
     }
 }
