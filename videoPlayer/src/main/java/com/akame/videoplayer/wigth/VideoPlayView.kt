@@ -1,9 +1,8 @@
-package com.akame.videoplayer
+package com.akame.videoplayer.wigth
 
 import android.app.Activity
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -13,11 +12,10 @@ import com.akame.videoplayer.layer.BufferLoadLayer
 import com.akame.videoplayer.layer.PlayCompleteLayer
 import com.akame.videoplayer.layer.VideoPlayControlLayer
 import com.akame.videoplayer.utils.MediaType
-import com.akame.videoplayer.utils.ScreenUtils
 import com.akame.videoplayer.utils.VideoPlayStatus
 import kotlinx.coroutines.CoroutineScope
 
-class AkVideoPlayView(context: Context, attributeSet: AttributeSet) : VideoPlayCore(context, attributeSet), DefaultLifecycleObserver {
+class VideoPlayView(context: Context, attributeSet: AttributeSet) : VideoPlayCore(context, attributeSet), DefaultLifecycleObserver {
     private var viewPosition = -1
     private var videoViewParent: ViewGroup? = null
     private val videoControlLayer by lazy {

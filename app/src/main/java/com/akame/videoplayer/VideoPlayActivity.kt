@@ -1,12 +1,10 @@
 package com.akame.videoplayer
 
-import android.content.pm.ActivityInfo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import com.akame.videoplayer.databinding.ActivityVideoPlayBinding
 import com.akame.videoplayer.utils.MediaType
-import java.util.*
 
 class VideoPlayActivity : AppCompatActivity() {
     private lateinit var binding: ActivityVideoPlayBinding
@@ -26,7 +24,7 @@ class VideoPlayActivity : AppCompatActivity() {
         StatusBarUtil.init(this, true, false, binding.tvTitle) { k, s ->
 
         }
-        lifecycle.addObserver(binding.videoPlay)
+        binding.videoPlay.bindLifecycle(lifecycle)
         val videoMediaType = MediaType.StringType(videoPath1)
         binding.videoPlay.setup(lifecycleScope, videoMediaType, "你的选择没有错", isAutoPlay = false)
 
